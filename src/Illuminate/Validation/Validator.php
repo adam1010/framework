@@ -725,6 +725,34 @@ class Validator implements ValidatorContract
         return $this->data;
     }
 
+        /**
+     * Validate the rules and get the data under validation
+     *
+     * @return \Illuminate\Support\Collection
+     * 
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function getDataValidated()
+    {
+        $this->validate();
+        
+        return $this->getDataForRules();
+    }
+
+    /**
+     * Get the data under validation only for the loaded rules
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getDataForRules()
+    {
+        $ruleKeys = collect($this->getRules())->keys()->map(function($rule){
+          return str_contains($rule, '.') ? explode('.', $rule)[0] : $rule;
+        })->unique()->toArray();
+  
+        return collect($this->getData())->only($ruleKeys);
+    }
+    
     /**
      * Set the data under validation.
      *
